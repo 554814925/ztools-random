@@ -339,10 +339,6 @@ function createRgb() {
   return `rgb(${randomInt(0, 255)}, ${randomInt(0, 255)}, ${randomInt(0, 255)})`
 }
 
-function createWechat() {
-  return `${pick(words)}_${randomInt(1000, 999999)}`
-}
-
 function createSku() {
   return `SKU-${pick(words).toUpperCase()}-${randomInt(100000, 999999)}`
 }
@@ -351,19 +347,19 @@ function createChineseWord() {
   return `${pick(chineseWords)}${pick(chineseWords)}`
 }
 
-function complete(text) {
-  if (window.ztools.clipboard && typeof window.ztools.clipboard.writeContent === 'function') {
-    window.ztools.clipboard.writeContent({ type: 'text', content: text }, true)
+async function complete(text) {
+  if (typeof window.ztools.hideMainWindowTypeString === 'function') {
+    window.ztools.hideMainWindowTypeString(text)
     window.ztools.outPlugin()
     return
   }
 
-  if (typeof window.ztools.hideMainWindowPasteText === 'function') {
-    window.ztools.hideMainWindowPasteText(text)
-  } else {
-    window.ztools.copyText(text)
-    window.ztools.hideMainWindow()
-    window.ztools.simulateKeyboardTap('v', typeof window.ztools.isMacOs === 'function' && window.ztools.isMacOs() ? 'command' : 'ctrl')
+  if (typeof window.ztools.sendInputEvent === 'function') {
+    await window.ztools.hideMainWindow(true)
+
+    for (const char of text) {
+      window.ztools.sendInputEvent({ type: 'char', keyCode: char })
+    }
   }
 
   window.ztools.outPlugin()
@@ -373,9 +369,9 @@ function createHandler(creator) {
   return {
     mode: 'none',
     args: {
-      enter() {
+      async enter() {
         const text = creator()
-        complete(text)
+        await complete(text)
         return { success: true, data: text }
       }
     }
@@ -440,8 +436,6 @@ window.exports = {
   randomUserAgent: createHandler(createUserAgent),
   randomRgb: createHandler(createRgb),
   randomEmoji: createHandler(() => pick(emojis)),
-  randomQq: createHandler(() => String(randomInt(10000, 9999999999))),
-  randomWechat: createHandler(createWechat),
   randomSku: createHandler(createSku),
   randomChineseWord: createHandler(createChineseWord)
 }
