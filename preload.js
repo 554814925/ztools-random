@@ -98,7 +98,8 @@ function createUuid32() {
 
 function createAddress() {
   const area = pick(areas)
-  return `${area.province}${area.city}${area.district}${pick(roads)}${randomInt(1, 999)}号${pick(buildings)}${randomInt(1, 28)}栋${randomInt(101, 3202)}室`
+  const city = area.province === area.city ? '' : area.city
+  return `${area.province}${city}${area.district}${pick(roads)}${randomInt(1, 999)}号${pick(buildings)}${randomInt(1, 28)}栋${randomInt(101, 3202)}室`
 }
 
 function createIdCard() {
@@ -254,6 +255,10 @@ function createCoordinate() {
   return `${(Math.random() * 180 - 90).toFixed(6)}, ${(Math.random() * 360 - 180).toFixed(6)}`
 }
 
+function createMoney() {
+  return (Math.random() * 999999 + 1).toFixed(2)
+}
+
 function createEnglishName() {
   return `${pick(englishFirstNames)} ${pick(englishLastNames)}`
 }
@@ -291,7 +296,7 @@ function createJson() {
     name: createName(),
     phone: createPhone(),
     email: createEmail(),
-    amount: Number(randomInt(1, 999999).toFixed(2)),
+    amount: Number(createMoney()),
     enabled: Math.random() < 0.5
   })
 }
@@ -384,7 +389,7 @@ window.exports = {
   randomPostcode: createHandler('邮编', () => randomDigits(6)),
   randomColor: createHandler('颜色', createColor),
   randomNumber: createHandler('数字', () => String(randomInt(0, 1000000))),
-  randomMoney: createHandler('金额', () => randomInt(1, 999999).toFixed(2)),
+  randomMoney: createHandler('金额', createMoney),
   randomBoolean: createHandler('布尔值', () => String(Math.random() < 0.5)),
   randomBooleanUpper: createHandler('大写布尔值', () => String(Math.random() < 0.5).toUpperCase()),
   randomBooleanNumber: createHandler('布尔数字', () => String(randomInt(0, 1))),
